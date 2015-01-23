@@ -1,0 +1,26 @@
+#board {
+
+}
+
+#board div {
+  width: 100px;
+  height: 100px;
+  opacity:0.2;
+}
+
+#red {
+  background-color: red;
+}
+
+#green {
+  background-color: green;
+}
+
+#yellow {
+  background-color: yellow;
+}
+
+#blue {
+  background-color: blue;
+}
+
