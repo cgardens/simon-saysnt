@@ -1,0 +1,19 @@
+{
+  "name": "simon-saysnt",
+  "version": "0.0.1",
+  "description": "Simon Says Game Clone",
+  "main": "simon-saysnt.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cgardens/simon-saysnt.git"
+    },
+    "author": {
+      "name": "Charles and Sherif",
+      "email": "giardina.charles@gmail.com"
+      },
+      "license": "Unlicense",
+      "readmeFilename": "README.md",
+      "devDependencies": {
+        "wolfy87-eventemitter": "*"
+      }
+    }
