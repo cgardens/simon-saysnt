@@ -1,6 +1,6 @@
 ;(function(win){
 
-  heir.inherit(Board, EventEmitter);
+  // heir.inherit(Board, EventEmitter);
 
   function Board(){
     this.moves = ['red','green','blue','yellow'];
@@ -23,16 +23,20 @@
       this[tile] = $('#' + tile);
 
       this[tile].on('click', function(e){
-        this.attempt.push(e.target.id)
+        var tile = e.target.id
+
+        this.flash(tile)
+        this.attempt.push(tile)
         this.check();
+
       }.bind(this))
 
     }
   }
 
-  proto.score = function() {
-    return (this.score += this.challenge.length);
-  }
+  // proto.score = function() {
+  //   return (this.score += this.challenge.length);
+  // }
 
   proto.newChallenge = function(){
     this.challenge = [];
@@ -65,7 +69,7 @@
     this.challenge.forEach(function(tile, index){
       win.setTimeout(function(){
         self.flash(tile);
-      }, Math.floor((self.flashDelay + 200) * index));
+      }, Math.floor((self.flashDelay + 100) * index));
     });
   }
 
@@ -77,6 +81,11 @@
   proto.play = function() {
     this.nextChallenge();
     this.renderChallenge();
+  }
+
+  proto.playAgain = function(){
+    this.attempt = [];
+    win.setTimeout(this.play.bind(this), 1500);
   }
 
   proto.check = function(){
@@ -94,21 +103,7 @@
       }
     }
 
-    // var lastItem = this.attempt.length-1;
-
-    // if (this.challenge[lastItem] === this.attempt[lastItem]) {
-    //   this.score++;
-    //   // console.log('correct!');
-    //   // console.log('your score is now ' + this.score);
-    //   // this.updateScore()
-    // } else {
-    //   console.log('WRONG!');
-    // }
-
-    // if(lastItem === this.challenge.length - 1) {
-    this.attempt = []
-    this.play()
-    // }
+    this.playAgain();
   }
 
   /**
@@ -118,6 +113,8 @@
   function Player(name){
     this.name = name || 'Anonymous Coward'
     this.board = new Board();
+    this.score = 0;
+    this.firebase = null;
     // this.listen();
   }
 
@@ -131,13 +128,10 @@
       this.board.play();
     },
 
-    // listen: function(){
-    //   $('#board').on('click', function(event) {
-    //     // console.log(event);
-    //     // var itemClicked = event.target.id;
-    //     this.board.check();
-    //   }.bind(this))
-    // }
+    setRef: function(ref){
+      this.firebase = ref;
+    }
+
   }
 
   /**
@@ -145,7 +139,7 @@
   *
   */
   function Game(players){
-    this.firebase = new Firebase('https://glaring-torch-7877.firebaseio.com');
+    this.firebase = new Firebase('https://glaring-torch-7877.firebaseio.com/games');
     this.players = players || [];
     this.status = 'waiting'; // in-progress | finished
     this.id = 0; // holds firebase id for the current game
@@ -155,7 +149,7 @@
   Game.prototype = {
 
     setup: function(){
-      var snapshot = this.firebase.child('games').push({'status' : this.status});
+      var snapshot = this.firebase.push({'status' : this.status});
       this.setId(snapshot.key());
     },
 
@@ -173,13 +167,17 @@
     },
 
     addPlayer: function(name){
-      this.players.push(new Player(name));
+      var player = new Player(name);
+      this.players.push(player);
+      var snapshot = this.firebase.child(this.id + '/players').push({'name' : name, 'score' : 0})
+      player.setRef(snapshot.ref());
     }
 
   }
 
   function Simon(){
     this.firebase = new Firebase('https://glaring-torch-7877.firebaseio.com');
+    this.games = []
     this.monitorGames();
   }
 
@@ -199,19 +197,17 @@
     },
 
     monitorGames: function(){
-      this.games = []
-
+      this.game = []
       var self = this;
 
       this.firebase.child('games').on('value', function(snapshot){
          snapshot.forEach(function(st){
           var gameId = st.key();
-          self.games.push(gameId);
+          // self.games.push(new Game(gameId));
         })
       })
     }
   }
-
   win.simon = new Simon();
 
 }(this))
