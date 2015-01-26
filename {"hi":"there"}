@@ -1,0 +1,5 @@
+HTTP/1.1 403 Forbidden
+Content-Length: 53
+Strict-Transport-Security: max-age=31556926; includeSubDomains; preload
+Content-Type: text/plain
+

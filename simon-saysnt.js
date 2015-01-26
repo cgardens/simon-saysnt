@@ -7,19 +7,30 @@
     this.challenge = [];
     this.attempt = [];
     this.flashDelay = 500;
+    this.score = 0;
     this.buildBoardBindings();
   }
 
   var proto = Board.prototype;
 
   proto.buildBoardBindings = function(){
-    this.moves.forEach(function(tile){
+    var move = this.moves.length,
+        tile;
+
+    while(move--){
+      tile = this.moves[move]
+
       this[tile] = $('#' + tile);
-    }.bind(this))
+
+      this[tile].on('click', function(e){
+        this.attempt.push(e.target.id)
+      }.bind(this))
+
+    }
   }
 
   proto.score = function() {
-    return this.challenge.length;
+    return (this.score += this.challenge.length);
   }
 
   proto.newChallenge = function(){
@@ -57,8 +68,30 @@
     });
   }
 
+  proto.start = function() {
+    this.newChallenge();
+    this.renderChallenge();
+  }
+
+  proto.play = function() {
+    this.nextChallenge();
+    this.renderChallenge();
+  }
+
+  proto.check = function(item){
+    this.attempt.push(item);
+
+    var lastItem = attempt.length-1;
+
+    if (this.challenge[lastItem] === this.attempt[lastItem]) {
+      this.score++;
+      console.log('correct!');
+      console.log('your score is now ' + this.score);
+      // this.updateScore()
+    }
+
+  }
+
   win.board = new Board();
 
 }(this))
-
-
